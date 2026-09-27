@@ -1,0 +1,207 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered citizen or civic official profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 200 },
+        "role": { "type": "string", "enum": ["citizen", "dispatcher", "field_operator", "admin"] },
+        "preferredLanguage": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "createdAt"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "Civic issue reported by citizen or detected by sensors",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "type": {
+          "type": "string",
+          "enum": [
+            "WATER_LEAK",
+            "FLOODING",
+            "ROAD_DAMAGE",
+            "GARBAGE_OVERFLOW",
+            "FALLEN_TREE",
+            "ELECTRICAL_HAZARD",
+            "FIRE_RISK",
+            "TRAFFIC_OBSTRUCTION",
+            "HEAT_EMERGENCY",
+            "AIR_QUALITY",
+            "OTHER"
+          ]
+        },
+        "description": { "type": "string", "maxLength": 2000 },
+        "language": { "type": "string", "maxLength": 20 },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "address": { "type": "string", "maxLength": 256 },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "confidence": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "RECEIVED",
+            "ANALYZING",
+            "INVESTIGATING",
+            "DISPATCHING",
+            "DISPATCHED",
+            "ON_SITE",
+            "VERIFYING",
+            "RESOLVED",
+            "ESCALATED"
+          ]
+        },
+        "assignedTeamId": { "type": "string", "maxLength": 64 },
+        "criticalFacilities": { "type": "string" },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "aiSummary": { "type": "string", "maxLength": 2000 },
+        "clusterHypothesis": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "resolvedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "type", "description", "latitude", "longitude", "severity", "status", "createdAt"]
+    },
+    "ResponseTeam": {
+      "title": "ResponseTeam",
+      "description": "Municipal rapid response unit or utility crew",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 100 },
+        "capabilities": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "availability": { "type": "string", "enum": ["AVAILABLE", "DISPATCHED", "ON_SCENE", "OFF_DUTY"] },
+        "currentLoad": { "type": "number" },
+        "contactPhone": { "type": "string", "maxLength": 30 },
+        "vehicleId": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "department", "availability", "currentLoad"]
+    },
+    "WorkOrder": {
+      "title": "WorkOrder",
+      "description": "Official municipal dispatch order linked to an incident",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "incidentId": { "type": "string", "maxLength": 64 },
+        "teamId": { "type": "string", "maxLength": 64 },
+        "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "status": { "type": "string", "enum": ["PENDING", "ACCEPTED", "EN_ROUTE", "ON_SITE", "COMPLETED", "REJECTED"] },
+        "etaMinutes": { "type": "number" },
+        "instructions": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "incidentId", "teamId", "priority", "status", "createdAt"]
+    },
+    "AgentAction": {
+      "title": "AgentAction",
+      "description": "Autonomous tool execution audit log entry by Gemini agent",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "incidentId": { "type": "string", "maxLength": 64 },
+        "tool": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["RUNNING", "COMPLETED", "FAILED"] },
+        "summary": { "type": "string", "maxLength": 500 },
+        "input": { "type": "string" },
+        "result": { "type": "string" },
+        "latencyMs": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "incidentId", "tool", "status", "timestamp"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Alert dispatched to response team or citizen",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "incidentId": { "type": "string", "maxLength": 64 },
+        "teamId": { "type": "string", "maxLength": 64 },
+        "recipient": { "type": "string", "maxLength": 120 },
+        "channel": { "type": "string", "enum": ["IN_APP", "SMS_SIMULATED", "RADIO_DISPATCH", "WHATSAPP_SIMULATED"] },
+        "message": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["SENT", "DELIVERED", "FAILED"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "incidentId", "channel", "message", "status", "timestamp"]
+    },
+    "RiskZone": {
+      "title": "RiskZone",
+      "description": "City geospatial risk cell and resilience model prediction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["FLOODING", "WATER_INFRASTRUCTURE", "HEAT_ISLAND", "ROAD_HAZARDS", "ELECTRICAL_GRID"] },
+        "riskLevel": { "type": "string", "enum": ["LOW", "MODERATE", "ELEVATED", "HIGH", "SEVERE"] },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "radiusMeters": { "type": "number" },
+        "contributingSignals": { "type": "string" },
+        "recommendedActions": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "category", "riskLevel", "latitude", "longitude"]
+    },
+    "CriticalFacility": {
+      "title": "CriticalFacility",
+      "description": "Nearby high-impact infrastructure such as schools, hospitals, or transit stations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 120 },
+        "type": { "type": "string", "enum": ["school", "hospital", "fire_station", "police_station", "metro_station", "major_road", "public_facility"] },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "vicinity": { "type": "string", "maxLength": 200 },
+        "vulnerabilityNotes": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "name", "type", "latitude", "longitude"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "Civic incidents reported and tracked"
+    },
+    "/responseTeams/{teamId}": {
+      "schema": "ResponseTeam",
+      "description": "Municipal response units"
+    },
+    "/workOrders/{workOrderId}": {
+      "schema": "WorkOrder",
+      "description": "Work orders assigned to teams"
+    },
+    "/agentActions/{actionId}": {
+      "schema": "AgentAction",
+      "description": "Gemini tool calling execution logs"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Team alerts and dispatch notifications"
+    },
+    "/riskZones/{zoneId}": {
+      "schema": "RiskZone",
+      "description": "City prototype risk zones"
+    },
+    "/criticalFacilities/{facilityId}": {
+      "schema": "CriticalFacility",
+      "description": "Infrastructure reference points"
+    }
+  }
+}

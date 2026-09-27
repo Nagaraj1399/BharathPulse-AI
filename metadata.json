@@ -1,0 +1,9 @@
+{
+  "name": "BharatPulse AI",
+  "description": "India's AI Operating System for Future Cities - autonomous civic-response platform coordinating real-world incident resolution.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Incidents Collection
+    // Public read for civic awareness/command center, create allowed for citizens
+    match /incidents/{incidentId} {
+      allow read: if true;
+      allow create: if isValidId(incidentId);
+      allow update: if isValidId(incidentId);
+      allow delete: if false;
+    }
+
+    // Response Teams Collection
+    match /responseTeams/{teamId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Work Orders Collection
+    match /workOrders/{orderId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Agent Actions (Audit Log)
+    match /agentActions/{actionId} {
+      allow read: if true;
+      allow create: if isValidId(actionId);
+      allow update, delete: if false;
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow create: if isValidId(notificationId);
+      allow update, delete: if false;
+    }
+
+    // Risk Zones
+    match /riskZones/{zoneId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Critical Facilities
+    match /criticalFacilities/{facilityId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}
